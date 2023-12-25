@@ -26,6 +26,18 @@ class NeuralNetwork(ABC):
     def calculate_gradient(self, train_x, train_y):
         ...
 
+    @abstractmethod
+    def fit(self, train_x, train_y):
+        ...
+
+    @abstractmethod
+    def test(self, test_x, test_y):
+        ...
+
+    @staticmethod
+    def sigmoid(z):
+        return 1 / (1 + np.exp(-z))
+
 
 class NoAutogradNeuralNetwork(NeuralNetwork):
     def __init__(self, **kwargs):
