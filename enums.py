@@ -1,5 +1,6 @@
 from enum import Enum
 
 
-class LearningAlgorithm(Enum):
-    SGD = 1
+class TrainingAlgorithm(Enum):
+    SGD = 1,
+    BGD = 2

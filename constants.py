@@ -1,0 +1,1 @@
+BGD_BATCH_SIZE = 128
