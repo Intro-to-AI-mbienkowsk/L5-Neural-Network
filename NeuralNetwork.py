@@ -3,17 +3,20 @@ import numpy as np
 from abc import ABC, abstractmethod
 from enums import *
 from autograd import grad
+from constants import *
 
 
 class NeuralNetwork(ABC):
     def __init__(self, layer_sizes: tuple[int], activation_function: callable, epochs: int,
-                 minimalization_algorithm: LearningAlgorithm, learning_rate: float):
+                 minimalization_algorithm: TrainingAlgorithm, learning_rate: float):
         self.num_layers = len(layer_sizes)
         self.layer_sizes = layer_sizes
+        # todo: initialize to sensible values
         self.weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
         self.biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
         self.activation_function = activation_function
         self.epochs = epochs
+        self.training_algorithm = minimalization_algorithm
         self.learning_rate = learning_rate
 
     def output(self, x):
@@ -57,9 +60,8 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
             weighted_inputs.append(z)
             activations.append(self.activation_function(z))
 
-        delta = (self.cost_derivative(activations[-1], train_y) *
-                 self.activation_derivative(weighted_inputs[-1]))
-
+        # todo: what to do about this cost_derivative thing?
+        delta = (activations[-1] - train_y) * self.activation_derivative(weighted_inputs[-1])
         grad_b[-1] = delta
         grad_w[-1] = np.dot(delta, activations[-2].T)
 
@@ -71,3 +73,27 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
             grad_b[l] = delta
             grad_w[l] = np.dot(delta, activations[l + 1].T)
         return grad_w, grad_b
+
+    def fit(self, train_x, train_y):
+        if self.training_algorithm == TrainingAlgorithm.BGD:
+            for i in range(self.epochs):
+                training_data = list(zip(train_x, train_y))
+                random.shuffle(training_data)
+                batches = [training_data[i:i + BGD_BATCH_SIZE] for i in range(0, len(training_data), BGD_BATCH_SIZE)]
+                for batch in batches:
+                    self.train_batch(batch)
+
+    def train_batch(self, batch):
+        grad_w = [np.zeros(w.shape) for w in self.weights]
+        grad_b = [np.zeros(b.shape) for b in self.biases]
+        for x, y in batch:
+            partial_grad_w, partial_grad_b = self.calculate_gradient(x, y)
+            np.add.at(grad_w, range(len(grad_w)), partial_grad_w)
+            np.add.at(grad_b, range(len(grad_b)), partial_grad_b)
+        grad_w = [pgw * self.learning_rate / BGD_BATCH_SIZE for pgw in grad_w]
+        grad_b = [pgb * self.learning_rate / BGD_BATCH_SIZE for pgb in grad_b]
+        np.add.at(self.weights, range(len(self.weights)), grad_w)
+        np.add.at(self.biases, range(len(self.biases)), grad_b)
+
+    def test(self, test_x, test_y):
+        pass
