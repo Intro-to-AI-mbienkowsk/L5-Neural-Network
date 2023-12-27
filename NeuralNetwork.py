@@ -13,7 +13,7 @@ class NeuralNetwork(ABC):
         self.layer_sizes = layer_sizes
         # todo: initialize to sensible values
         self.weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
-        self.biases = [np.random.randn(y, 1) for y in layer_sizes[1:]]
+        self.biases = [np.random.randn(y) for y in layer_sizes[1:]]
         self.activation_function = activation_function
         self.epochs = epochs
         self.training_algorithm = minimalization_algorithm
@@ -21,8 +21,8 @@ class NeuralNetwork(ABC):
 
     def output(self, x):
         y = x
-        for b, w in self.biases, self.weights:
-            y = self.activation_function(np.dot(y, w) + b)
+        for b, w in zip(self.biases, self.weights):
+            y = self.activation_function(np.dot(w, y) + b)
         return y
 
     @abstractmethod
@@ -66,19 +66,20 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         # todo: what to do about this cost_derivative thing?
         delta = (activations[-1] - train_y) * self.activation_derivative(weighted_inputs[-1])
         grad_b[-1] = delta
-        grad_w[-1] = np.dot(delta, activations[-2].T)
+        grad_w[-1] = np.outer(delta, activations[-2])
 
         for layer_idx in range(2, self.num_layers):
             # iterate back from the 2nd to last layer
             z = weighted_inputs[-layer_idx]
             delta = np.dot(self.weights[-layer_idx + 1].T, delta) * self.activation_derivative(z)
             grad_b[-layer_idx] = delta
-            grad_w[-layer_idx] = np.dot(delta, activations[-layer_idx - 1].T) # TODO MISINPUT
+            grad_w[-layer_idx] = np.outer(delta, activations[-layer_idx - 1])
         return grad_w, grad_b
 
     def fit(self, train_x, train_y):
         if self.training_algorithm == TrainingAlgorithm.BGD:
             for i in range(self.epochs):
+                print(f"Epoch {i}")
                 training_data = list(zip(train_x, train_y))
                 random.shuffle(training_data)
                 batches = [training_data[i:i + BGD_BATCH_SIZE] for i in range(0, len(training_data), BGD_BATCH_SIZE)]

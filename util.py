@@ -10,7 +10,7 @@ def import_data():
     test_y = test_labels()
     train_x_processed = train_x.reshape(train_x.shape[0], -1) / 255.0
     test_x_processed = test_x.reshape(test_x.shape[0], -1) / 255.0
-    return (train_x_processed, train_y), (test_x_processed, test_y)
+    return (train_x_processed[:5000], train_y[:5000]), (test_x_processed[:1000], test_y[:1000])
 
 
 def display_confusion_matrix(pred_y, actual_y):

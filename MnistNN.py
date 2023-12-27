@@ -9,7 +9,5 @@ class MnistNeuralNetwork(NoAutogradNeuralNetwork):
         super().__init__(layer_sizes=MNIST_NN_LAYERS, **kwargs)
 
     def classify(self, x):
-        # todo: -1 label for the ones not classified?
-        output_vector = self.output(x)
-        # index of the largest value out of all outputs
-        return np.where(output_vector == np.max(output_vector))[0]
+        # todo: vectorize
+        return np.array([np.argmax(self.output(image.reshape(-1, 1))) for image in x])
