@@ -33,20 +33,22 @@ class NeuralNetwork(ABC):
     def fit(self, train_x, train_y):
         ...
 
-    @abstractmethod
-    def test(self, test_x, test_y):
-        ...
-
     @staticmethod
     def sigmoid(z):
         return 1 / (1 + np.exp(-z))
+
+    @staticmethod
+    def sigmoid_derivative(z):
+        return NeuralNetwork.sigmoid(z)*(1-NeuralNetwork.sigmoid(z))
 
 
 class NoAutogradNeuralNetwork(NeuralNetwork):
     def __init__(self, **kwargs):
         # todo: is this good practice?
         super().__init__(**kwargs)
-        self.activation_derivative = grad(self.activation_function)
+        # todo
+        # self.activation_derivative = grad(self.activation_function)
+        self.activation_derivative = NeuralNetwork.sigmoid_derivative
 
     def calculate_gradient(self, train_x, train_y):
         grad_w = [np.zeros(w.shape) for w in self.weights]
@@ -58,7 +60,8 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation) + b
             weighted_inputs.append(z)
-            activations.append(self.activation_function(z))
+            activation = self.activation_function(z)
+            activations.append(activation)
 
         # todo: what to do about this cost_derivative thing?
         delta = (activations[-1] - train_y) * self.activation_derivative(weighted_inputs[-1])
@@ -67,11 +70,10 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
 
         for layer_idx in range(2, self.num_layers):
             # iterate back from the 2nd to last layer
-            l = -layer_idx
-            z = weighted_inputs[l]
-            delta = np.dot(self.weights[l + 1].T, delta) * self.activation_derivative(z)
-            grad_b[l] = delta
-            grad_w[l] = np.dot(delta, activations[l + 1].T)
+            z = weighted_inputs[-layer_idx]
+            delta = np.dot(self.weights[-layer_idx + 1].T, delta) * self.activation_derivative(z)
+            grad_b[-layer_idx] = delta
+            grad_w[-layer_idx] = np.dot(delta, activations[-layer_idx - 1].T) # TODO MISINPUT
         return grad_w, grad_b
 
     def fit(self, train_x, train_y):
@@ -88,12 +90,10 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         grad_b = [np.zeros(b.shape) for b in self.biases]
         for x, y in batch:
             partial_grad_w, partial_grad_b = self.calculate_gradient(x, y)
-            np.add.at(grad_w, range(len(grad_w)), partial_grad_w)
-            np.add.at(grad_b, range(len(grad_b)), partial_grad_b)
+            grad_w = [gw + pgw for gw, pgw in zip(grad_w, partial_grad_w)]
+            grad_b = [gb + pgb for gb, pgb in zip(grad_b, partial_grad_b)]
+
         grad_w = [pgw * self.learning_rate / BGD_BATCH_SIZE for pgw in grad_w]
         grad_b = [pgb * self.learning_rate / BGD_BATCH_SIZE for pgb in grad_b]
-        np.add.at(self.weights, range(len(self.weights)), grad_w)
-        np.add.at(self.biases, range(len(self.biases)), grad_b)
-
-    def test(self, test_x, test_y):
-        pass
+        self.weights = [w - gw for w, gw in zip(self.weights, grad_w)]
+        self.biases = [b - gb for b, gb in zip(self.biases, grad_b)]
