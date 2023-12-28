@@ -55,7 +55,7 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         grad_b = [np.zeros(b.shape) for b in self.biases]
         weighted_inputs = []  # wx + b for each neuron
         activation = train_x
-        activations = [activation]  # act_function(wx+b)
+        activations = [activation]
 
         for b, w in zip(self.biases, self.weights):
             z = np.dot(w, activation) + b
@@ -63,7 +63,7 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
             activation = self.activation_function(z)
             activations.append(activation)
 
-        # todo: what to do about this cost_derivative thing?
+        # todo: refactor
         delta = (activations[-1] - train_y) * self.activation_derivative(weighted_inputs[-1])
         grad_b[-1] = delta
         grad_w[-1] = np.outer(delta, activations[-2])
