@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 from mnist import *
 from sklearn.metrics import *
-from constants import TRAINING_EXAMPLES
+from src.constants import TRAINING_EXAMPLES
 
 
 def import_data(n_train=TRAINING_EXAMPLES):

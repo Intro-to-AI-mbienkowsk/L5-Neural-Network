@@ -1,5 +1,5 @@
-from NeuralNetwork import NoAutogradNeuralNetwork
-from constants import MNIST_NN_LAYERS
+from src.NeuralNetwork import NoAutogradNeuralNetwork
+from src.constants import MNIST_NN_LAYERS
 import numpy as np
 
 

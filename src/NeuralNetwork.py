@@ -1,7 +1,7 @@
 import random
 import numpy as np
 from abc import ABC, abstractmethod
-from constants import *
+from src.constants import *
 
 
 class NeuralNetwork(ABC):
@@ -34,7 +34,7 @@ class NeuralNetwork(ABC):
 
     @staticmethod
     def sigmoid_derivative(z):
-        return NeuralNetwork.sigmoid(z)*(1-NeuralNetwork.sigmoid(z))
+        return NeuralNetwork.sigmoid(z) * (1 - NeuralNetwork.sigmoid(z))
 
 
 class NoAutogradNeuralNetwork(NeuralNetwork):
@@ -69,7 +69,7 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
 
     def fit(self, train_x, train_y):
         for i in range(self.epochs):
-            print(f"Epoch {i}")
+            print(f"Epoch {i + 1}")
             training_data = list(zip(train_x, train_y))
             random.shuffle(training_data)
             batches = [training_data[i:i + BGD_BATCH_SIZE] for i in range(0, len(training_data), BGD_BATCH_SIZE)]

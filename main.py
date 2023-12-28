@@ -1,7 +1,5 @@
-from MnistNN import MnistNeuralNetwork
-from NeuralNetwork import NeuralNetwork
-from constants import *
-from util import *
+from src.MnistNN import MnistNeuralNetwork
+from src.util import *
 from argparse import ArgumentParser
 
 
