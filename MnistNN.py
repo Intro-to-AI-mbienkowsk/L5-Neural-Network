@@ -9,5 +9,4 @@ class MnistNeuralNetwork(NoAutogradNeuralNetwork):
         super().__init__(layer_sizes=MNIST_NN_LAYERS, **kwargs)
 
     def classify(self, x):
-        # todo: vectorize
         return np.array([np.argmax(self.output(image)) for image in x])

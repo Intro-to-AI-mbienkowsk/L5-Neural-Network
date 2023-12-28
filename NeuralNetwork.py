@@ -1,21 +1,17 @@
 import random
 import numpy as np
 from abc import ABC, abstractmethod
-from enums import *
 from constants import *
 
 
 class NeuralNetwork(ABC):
-    def __init__(self, layer_sizes: tuple[int], activation_function: callable, epochs: int,
-                 minimalization_algorithm: TrainingAlgorithm, learning_rate: float):
+    def __init__(self, layer_sizes: tuple[int], activation_function: callable, epochs: int, learning_rate: float):
         self.num_layers = len(layer_sizes)
         self.layer_sizes = layer_sizes
-        # todo: initialize to sensible values
         self.weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
         self.biases = [np.random.randn(y) for y in layer_sizes[1:]]
         self.activation_function = activation_function
         self.epochs = epochs
-        self.training_algorithm = minimalization_algorithm
         self.learning_rate = learning_rate
 
     def output(self, x):
@@ -43,10 +39,7 @@ class NeuralNetwork(ABC):
 
 class NoAutogradNeuralNetwork(NeuralNetwork):
     def __init__(self, **kwargs):
-        # todo: is this good practice?
         super().__init__(**kwargs)
-        # todo
-        # self.activation_derivative = grad(self.activation_function)
         self.activation_derivative = NeuralNetwork.sigmoid_derivative
 
     def calculate_gradient(self, train_x, train_y):
@@ -62,7 +55,6 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
             activation = self.activation_function(z)
             activations.append(activation)
 
-        # todo: refactor
         delta = (activations[-1] - train_y) * self.activation_derivative(weighted_inputs[-1])
         grad_b[-1] = delta
         grad_w[-1] = np.outer(delta, activations[-2])
@@ -76,14 +68,13 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         return grad_w, grad_b
 
     def fit(self, train_x, train_y):
-        if self.training_algorithm == TrainingAlgorithm.BGD:
-            for i in range(self.epochs):
-                print(f"Epoch {i}")
-                training_data = list(zip(train_x, train_y))
-                random.shuffle(training_data)
-                batches = [training_data[i:i + BGD_BATCH_SIZE] for i in range(0, len(training_data), BGD_BATCH_SIZE)]
-                for batch in batches:
-                    self.train_batch(batch)
+        for i in range(self.epochs):
+            print(f"Epoch {i}")
+            training_data = list(zip(train_x, train_y))
+            random.shuffle(training_data)
+            batches = [training_data[i:i + BGD_BATCH_SIZE] for i in range(0, len(training_data), BGD_BATCH_SIZE)]
+            for batch in batches:
+                self.train_batch(batch)
 
     def train_batch(self, batch):
         grad_w = [np.zeros(w.shape) for w in self.weights]
