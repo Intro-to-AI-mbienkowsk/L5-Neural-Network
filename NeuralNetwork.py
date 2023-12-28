@@ -5,13 +5,13 @@ from constants import *
 
 
 class NeuralNetwork(ABC):
-    def __init__(self, layer_sizes: tuple[int], activation_function: callable, epochs: int, learning_rate: float):
+    def __init__(self, layer_sizes: tuple[int], epochs: int, learning_rate: float):
         self.num_layers = len(layer_sizes)
         self.layer_sizes = layer_sizes
         self.weights = [np.random.randn(y, x) for x, y in zip(layer_sizes[:-1], layer_sizes[1:])]
         self.biases = [np.random.randn(y) for y in layer_sizes[1:]]
-        self.activation_function = activation_function
         self.epochs = epochs
+        self.activation_function = NeuralNetwork.sigmoid
         self.learning_rate = learning_rate
 
     def output(self, x):
