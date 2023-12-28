@@ -89,3 +89,6 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         grad_b = [pgb * self.learning_rate / BGD_BATCH_SIZE for pgb in grad_b]
         self.weights = [w - gw for w, gw in zip(self.weights, grad_w)]
         self.biases = [b - gb for b, gb in zip(self.biases, grad_b)]
+
+    def classify(self, x):
+        return np.array([np.argmax(self.output(image)) for image in x])
