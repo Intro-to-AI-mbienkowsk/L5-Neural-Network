@@ -14,15 +14,13 @@ def import_data():
 
 
 def display_confusion_matrix(pred_y, actual_y):
-    labels = [i for i in range(-1, 10)]
-    cm = confusion_matrix(actual_y, pred_y, labels=labels)
+    cm = confusion_matrix(actual_y, pred_y)
 
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=labels)
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
     disp.plot()
-    precision = precision_score(actual_y, pred_y, average='weighted',
-                                labels=labels[1:])
+    precision = precision_score(actual_y, pred_y, average='weighted')
     accuracy = accuracy_score(actual_y, pred_y)
-    f1 = f1_score(actual_y, pred_y, average='weighted', labels=labels[1:])
+    f1 = f1_score(actual_y, pred_y, average='weighted')
 
     textstr = '\n'.join((
         f'Precision: {precision:.2f}',
