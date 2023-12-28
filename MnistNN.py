@@ -10,4 +10,4 @@ class MnistNeuralNetwork(NoAutogradNeuralNetwork):
 
     def classify(self, x):
         # todo: vectorize
-        return np.array([np.argmax(self.output(image.reshape(-1, 1))) for image in x])
+        return np.array([np.argmax(self.output(image)) for image in x])

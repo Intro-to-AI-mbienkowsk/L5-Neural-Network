@@ -90,7 +90,8 @@ class NoAutogradNeuralNetwork(NeuralNetwork):
         grad_w = [np.zeros(w.shape) for w in self.weights]
         grad_b = [np.zeros(b.shape) for b in self.biases]
         for x, y in batch:
-            partial_grad_w, partial_grad_b = self.calculate_gradient(x, y)
+            y_one_hot = np.eye(10)[y]
+            partial_grad_w, partial_grad_b = self.calculate_gradient(x, y_one_hot)
             grad_w = [gw + pgw for gw, pgw in zip(grad_w, partial_grad_w)]
             grad_b = [gb + pgb for gb, pgb in zip(grad_b, partial_grad_b)]
 
