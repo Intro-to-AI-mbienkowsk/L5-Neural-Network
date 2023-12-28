@@ -2,7 +2,6 @@ import random
 import numpy as np
 from abc import ABC, abstractmethod
 from enums import *
-from autograd import grad
 from constants import *
 
 

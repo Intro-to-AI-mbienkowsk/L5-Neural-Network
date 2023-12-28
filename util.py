@@ -1,16 +1,17 @@
 import matplotlib.pyplot as plt
 from mnist import *
 from sklearn.metrics import *
+from constants import TRAINING_EXAMPLES
 
 
-def import_data():
+def import_data(n_train=TRAINING_EXAMPLES):
     train_x = train_images()
     train_y = train_labels()
     test_x = test_images()
     test_y = test_labels()
     train_x_processed = train_x.reshape(train_x.shape[0], -1) / 255.0
     test_x_processed = test_x.reshape(test_x.shape[0], -1) / 255.0
-    return (train_x_processed[:5000], train_y[:5000]), (test_x_processed[:1000], test_y[:1000])
+    return (train_x_processed[:n_train], train_y[:n_train]), (test_x_processed[:1000], test_y[:1000])
 
 
 def display_confusion_matrix(pred_y, actual_y):
